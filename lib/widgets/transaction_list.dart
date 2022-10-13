@@ -11,39 +11,42 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 450,
-      child: transactions.isEmpty
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'No transactions added yet!',
-                    style: Theme.of(context).textTheme.headline6,
+    return transactions.isEmpty
+        ? LayoutBuilder(
+            builder: (ctx, constraints) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'No transactions added yet!',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
                   ),
+                  SizedBox(
+                    height: constraints.maxHeight * 0.7,
+                    child: Image.asset(
+                      'assets/images/waiting.png',
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                ],
+              );
+            },
+          )
+        : ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Card(
+                elevation: 5,
+                margin: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 5,
                 ),
-                SizedBox(
-                  height: 200,
-                  child: Image.asset(
-                    'assets/images/waiting.png',
-                    fit: BoxFit.cover,
-                  ),
-                )
-              ],
-            )
-          : ListView.builder(
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Card(
-                  elevation: 5,
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 5,
-                  ),
-                  child: ListTile(
+                child: ListTile(
                     leading: CircleAvatar(
                       radius: 30,
                       child: Padding(
@@ -60,16 +63,27 @@ class TransactionList extends StatelessWidget {
                     subtitle: Text(
                       DateFormat.yMMMd().format(transactions[index].date),
                     ),
-                    trailing: IconButton(
-                      onPressed: () => deleteTx(transactions[index].id),
-                      icon: const Icon(Icons.delete),
-                      color: Theme.of(context).errorColor,
-                    ),
-                  ),
-                );
-              },
-              itemCount: transactions.length,
-            ),
-    );
+                    trailing: MediaQuery.of(context).size.width > 360
+                        ? TextButton.icon(
+                            onPressed: () => deleteTx(transactions[index].id),
+                            icon: Icon(
+                              Icons.delete,
+                              color: Theme.of(context).errorColor,
+                            ),
+                            label: Text(
+                              'Delete',
+                              style: TextStyle(
+                                  color: Theme.of(context).errorColor),
+                            ),
+                          )
+                        : IconButton(
+                            onPressed: () => deleteTx(transactions[index].id),
+                            icon: const Icon(Icons.delete),
+                            color: Theme.of(context).errorColor,
+                          )),
+              );
+            },
+            itemCount: transactions.length,
+          );
   }
 }
